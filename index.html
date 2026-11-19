@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FitScale – a free, accessible adult BMI calculator with a visual BMI chart, clear explanations and answers to common questions.">
+  <title>FitScale | Adult BMI Calculator</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Inline SVG favicon so no extra image file is required -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d9488'/%3E%3Cpath d='M8 21a8 8 0 0 1 16 0' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M16 21l4-6' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+  <!-- Skip link lets keyboard users jump straight to the main content -->
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <!-- ================= HEADER ================= -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#home" class="brand" aria-label="FitScale home">
+        <svg class="brand-logo" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+          <rect width="32" height="32" rx="8"></rect>
+          <path d="M8 21a8 8 0 0 1 16 0" class="logo-arc"></path>
+          <path d="M16 21l4-6" class="logo-needle"></path>
+        </svg>
+        <span class="brand-name">Fit<span>Scale</span></span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="primaryNav" aria-label="Open menu">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+
+      <nav class="primary-nav" id="primaryNav" aria-label="Main navigation">
+        <ul>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#calculator">BMI Calculator</a></li>
+          <li><a href="#information">BMI Information</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ================= HERO ================= -->
+    <section class="hero" id="home" aria-label="Introduction">
+      <div class="container hero-inner">
+        <p class="eyebrow">For adults aged 20 and over</p>
+        <h1>Check your Body Mass Index in seconds</h1>
+        <p class="hero-text">
+          Enter your weight and height to see your BMI, the adult category it falls into,
+          and where it sits on the BMI scale — plus plain-language guidance on what it does and doesn't tell you.
+        </p>
+        <a href="#calculator" class="btn btn-primary">Start calculating</a>
+      </div>
+    </section>
+
+    <!-- ================= CALCULATOR ================= -->
+    <section class="section" id="calculator" aria-labelledby="calc-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="calc-title">BMI Calculator</h2>
+          <p>Metric units: kilograms and centimetres.</p>
+        </div>
+
+        <div class="calc-grid">
+          <!-- Input form -->
+          <form class="card calc-form" id="bmiForm" novalidate>
+            <h3 class="card-title">Your details</h3>
+
+            <div class="field">
+              <label for="age">Age <span class="unit">(years)</span></label>
+              <input type="number" id="age" name="age" inputmode="numeric" min="20" max="120" step="1"
+                     placeholder="e.g. 35" aria-describedby="age-hint age-error">
+              <p class="hint" id="age-hint">Adult BMI categories apply from age 20.</p>
+              <p class="error" id="age-error" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label for="weight">Weight <span class="unit">(kg)</span></label>
+              <div class="input-wrap">
+                <input type="number" id="weight" name="weight" inputmode="decimal" min="20" max="350" step="0.1"
+                       placeholder="e.g. 70" aria-describedby="weight-error">
+                <span class="suffix" aria-hidden="true">kg</span>
+              </div>
+              <p class="error" id="weight-error" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label for="height">Height <span class="unit">(cm)</span></label>
+              <div class="input-wrap">
+                <input type="number" id="height" name="height" inputmode="decimal" min="100" max="250" step="0.1"
+                       placeholder="e.g. 175" aria-describedby="height-error">
+                <span class="suffix" aria-hidden="true">cm</span>
+              </div>
+              <p class="error" id="height-error" role="alert"></p>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Calculate</button>
+              <button type="button" class="btn btn-secondary" id="resetBtn">Reset</button>
+            </div>
+          </form>
+
+          <!-- Result panel: updated by script.js. aria-live announces new results to screen readers. -->
+          <section class="card result-card" id="resultCard" aria-labelledby="result-title" aria-live="polite">
+            <h3 class="card-title" id="result-title">Your result</h3>
+
+            <!-- Shown before any calculation -->
+            <div class="result-empty" id="resultEmpty">
+              <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <circle cx="32" cy="32" r="28"></circle>
+                <path d="M18 38a14 14 0 0 1 28 0"></path>
+                <path d="M32 38l6-9"></path>
+              </svg>
+              <p>Fill in your details and press <strong>Calculate</strong> to see your BMI.</p>
+            </div>
+
+            <!-- Shown after a valid calculation -->
+            <div class="result-filled" id="resultFilled" hidden>
+              <div class="result-top">
+                <div>
+                  <p class="result-label">Your BMI</p>
+                  <p class="result-value" id="bmiValue">–</p>
+                </div>
+                <span class="badge" id="bmiBadge">–</span>
+              </div>
+
+              <p class="result-text" id="bmiExplanation"></p>
+
+              <dl class="result-stats">
+                <div>
+                  <dt>Healthy BMI range</dt>
+                  <dd>18.5 – 24.9</dd>
+                </div>
+                <div>
+                  <dt>Healthy weight for your height</dt>
+                  <dd id="healthyRange">–</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+        </div>
+
+        <!-- ================= BMI CHART ================= -->
+        <section class="card chart-card" id="chart" aria-labelledby="chart-title">
+          <h3 class="card-title" id="chart-title">Adult BMI chart</h3>
+          <p class="chart-note" id="chartNote">Calculate your BMI to see where you sit on the scale.</p>
+
+          <div class="gauge" role="img" aria-labelledby="chartNote">
+            <div class="gauge-track">
+              <span class="seg seg-under"  style="--w: 28.333%"></span>
+              <span class="seg seg-healthy" style="--w: 21.667%"></span>
+              <span class="seg seg-over"   style="--w: 16.667%"></span>
+              <span class="seg seg-obese"  style="--w: 33.333%"></span>
+            </div>
+            <!-- Marker is positioned with JavaScript based on the BMI value -->
+            <div class="gauge-marker" id="gaugeMarker" hidden>
+              <span class="marker-label" id="markerLabel">0</span>
+              <span class="marker-pin"></span>
+            </div>
+            <div class="gauge-scale" aria-hidden="true">
+              <span style="left: 0%">10</span>
+              <span style="left: 28.333%">18.5</span>
+              <span style="left: 50%">25</span>
+              <span style="left: 66.667%">30</span>
+              <span style="left: 100%">40+</span>
+            </div>
+          </div>
+
+          <!-- Category table: the row matching the user's result is highlighted -->
+          <div class="table-wrap">
+            <table class="bmi-table">
+              <caption class="visually-hidden">Adult BMI categories</caption>
+              <thead>
+                <tr><th scope="col">Category</th><th scope="col">BMI range (kg/m²)</th></tr>
+              </thead>
+              <tbody>
+                <tr data-category="underweight"><td><span class="dot dot-under"></span>Underweight</td><td>Below 18.5</td></tr>
+                <tr data-category="healthy"><td><span class="dot dot-healthy"></span>Healthy weight</td><td>18.5 – 24.9</td></tr>
+                <tr data-category="overweight"><td><span class="dot dot-over"></span>Overweight</td><td>25.0 – 29.9</td></tr>
+                <tr data-category="obesity"><td><span class="dot dot-obese"></span>Obesity</td><td>30.0 and above</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ================= DISCLAIMER ================= -->
+        <aside class="disclaimer" aria-labelledby="disclaimer-title">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v5M12 16.5v.5"></path></svg>
+          <div>
+            <h3 id="disclaimer-title">Important health information</h3>
+            <p>
+              This calculator is intended for <strong>adults aged 20 and above</strong>. BMI is a
+              <strong>screening measure, not a diagnosis</strong> or a complete assessment of your health.
+              It does not account for muscle mass, body composition, pregnancy, ethnicity or where fat is stored.
+              Children and teenagers should use age- and sex-specific BMI percentiles instead.
+              Please speak to a qualified healthcare professional about your weight or health.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ================= BMI INFORMATION ================= -->
+    <section class="section section-alt" id="information" aria-labelledby="info-title">
+      <div class="container">
+        <div class="section-head">
+          <h2 id="info-title">Understanding BMI</h2>
+          <p>What the number means, how it is worked out, and where it falls short.</p>
+        </div>
+
+        <div class="info-grid">
+          <article class="card info-card">
+            <div class="info-icon" aria-hidden="true">?</div>
+            <h3>What is BMI?</h3>
+            <p>
+              Body Mass Index (BMI) is a simple number that compares your weight to your height.
+              It is widely used by health services as a quick, low-cost way to screen adults for
+              weight ranges that may be linked to health risks.
+            </p>
+          </article>
+
+          <article class="card info-card">
+            <div class="info-icon" aria-hidden="true">÷</div>
+            <h3>How is BMI calculated?</h3>
+            <p>BMI is your weight in kilograms divided by your height in metres squared:</p>
+            <p class="formula">BMI = weight (kg) ÷ height (m)²</p>
+            <p>
+              <strong>Example:</strong> 70 kg and 175 cm (1.75 m) →
+              70 ÷ (1.75 × 1.75) = 70 ÷ 3.0625 = <strong>22.9</strong>.
+            </p>
+          </article>
+
+          <article class="card info-card">
+            <div class="info-icon" aria-hidden="true">≡</div>
+            <h3>What do the categories mean?</h3>
+            <ul class="cat-list">
+              <li><span class="dot dot-under"></span><strong>Underweight (&lt; 18.5):</strong> may point to undernutrition or another health issue.</li>
+              <li><span class="dot dot-healthy"></span><strong>Healthy weight (18.5–24.9):</strong> associated with the lowest weight-related risk for most adults.</li>
+              <li><span class="dot dot-over"></span><strong>Overweight (25.0–29.9):</strong> linked to a raised risk of some conditions.</li>
+              <li><span class="dot dot-obese"></span><strong>Obesity (30.0+):</strong> linked to a higher risk of conditions such as type 2 diabetes and heart disease.</li>
+            </ul>
+          </article>
+
+          <article class="card info-card info-card-wide">
+            <div class="info-icon" aria-hidden="true">±</div>
+            <h3>Advantages and limitations of BMI</h3>
+            <div class="pros-cons">
+              <div>
+                <h4 class="pros-title">Advantages</h4>
+                <ul class="check-list">
+                  <li>Quick, free and needs only a scale and tape measure.</li>
+                  <li>Easy to repeat and track over time.</li>
+                  <li>Useful for comparing groups in population health studies.</li>
+                  <li>A helpful starting point for a conversation with a clinician.</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="cons-title">Limitations</h4>
+                <ul class="cross-list">
+                  <li>Cannot tell muscle from fat — athletes may score as "overweight".</li>
+                  <li>Ignores where fat is stored; waist size can matter more.</li>
+                  <li>May over- or under-estimate risk in older adults and some ethnic groups.</li>
+                  <li>Not suitable for pregnancy, children or teenagers.</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= FAQ ================= -->
+    <section class="section" id="faq" aria-labelledby="faq-title">
+      <div class="container container-narrow">
+        <div class="section-head">
+          <h2 id="faq-title">Frequently asked questions</h2>
+          <p>Short answers to the questions people ask most about BMI.</p>
+        </div>
+
+        <!-- Native <details>/<summary> elements are keyboard-accessible by default -->
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Is BMI accurate?</summary>
+            <p>BMI is a reasonable screening tool for most adults, but it is an estimate. Because it only uses height and weight, it can misclassify people with a lot of muscle, older adults who have lost muscle, and people of different body shapes. Treat it as one piece of information, not a verdict.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Why is this calculator only for adults aged 20 and over?</summary>
+            <p>Children and teenagers are still growing, and healthy body fat changes with age and sex. For people under 20, BMI is interpreted using age- and sex-specific growth charts (BMI-for-age percentiles) rather than the fixed adult categories used here.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Are the categories the same for men and women?</summary>
+            <p>Yes. The standard adult BMI categories are the same for all adults, regardless of sex. However, women tend to carry more body fat than men at the same BMI, which is one reason BMI should be interpreted alongside other measures.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>What is a healthy BMI?</summary>
+            <p>For most adults, a BMI between 18.5 and 24.9 is described as a healthy weight range. Some health organisations recommend lower thresholds for certain ethnic groups, such as people of South Asian, Chinese or Black African or Caribbean heritage, because risk can rise at a lower BMI.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>What else can I measure besides BMI?</summary>
+            <p>Waist circumference and waist-to-height ratio are simple extra checks for fat around the middle, which is closely linked to health risk. A healthcare professional may also consider blood pressure, blood tests, family history, activity levels and diet.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>My BMI is outside the healthy range. What should I do?</summary>
+            <p>Don't panic — BMI alone does not diagnose anything. If you're concerned, book an appointment with your doctor or another qualified healthcare professional, who can look at your overall health and give advice that suits you.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Is my data stored anywhere?</summary>
+            <p>No. All calculations run in your browser. Nothing you enter is sent to a server or saved.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p class="brand-name footer-brand">Fit<span>Scale</span></p>
+      <p>For general information only. Not a substitute for professional medical advice, diagnosis or treatment.</p>
+      <p class="copyright">&copy; <span id="year"></span> FitScale. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
